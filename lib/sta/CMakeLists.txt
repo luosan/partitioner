@@ -379,7 +379,10 @@ include(FindZLIB)
 
 find_package(Threads)
 
-find_package(Eigen3 REQUIRED)
+# Eigen3 is handled by parent CMakeLists.txt
+if(NOT TARGET Eigen3::Eigen)
+  find_package(Eigen3 REQUIRED)
+endif()
 
 include(cmake/FindCUDD.cmake)
 

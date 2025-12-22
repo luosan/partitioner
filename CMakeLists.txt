@@ -23,7 +23,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 find_package(Threads REQUIRED)
 
 # Find Boost - prefer local third_party/boost if system boost not found
-option(USE_LOCAL_BOOST "Use local boost headers from third_party/boost" OFF)
+option(USE_LOCAL_BOOST "Use local boost headers from third_party/boost" ON)
 
 if(USE_LOCAL_BOOST OR NOT EXISTS "/usr/include/boost")
   # Use local boost headers
@@ -55,6 +55,39 @@ else()
     endif()
   else()
     message(STATUS "Found system Boost: ${Boost_INCLUDE_DIRS}")
+  endif()
+endif()
+
+# Find Eigen3 - prefer local third_party/eigen3 if system Eigen3 not found
+option(USE_LOCAL_EIGEN3 "Use local Eigen3 headers from third_party/eigen3" ON)
+
+if(USE_LOCAL_EIGEN3 OR USE_LOCAL_BOOST)
+  # Use local Eigen3 headers
+  if(EXISTS "${CMAKE_SOURCE_DIR}/third_party/eigen3/Eigen")
+    message(STATUS "Using local Eigen3 headers from third_party/eigen3")
+    add_library(Eigen3::Eigen INTERFACE IMPORTED)
+    set_target_properties(Eigen3::Eigen PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/third_party/eigen3"
+    )
+    set(Eigen3_FOUND TRUE)
+  else()
+    message(FATAL_ERROR "Local Eigen3 not found in third_party/eigen3")
+  endif()
+else()
+  find_package(Eigen3 QUIET)
+  if(NOT Eigen3_FOUND)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/third_party/eigen3/Eigen")
+      message(STATUS "System Eigen3 not found, using local Eigen3 from third_party/eigen3")
+      add_library(Eigen3::Eigen INTERFACE IMPORTED)
+      set_target_properties(Eigen3::Eigen PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/third_party/eigen3"
+      )
+      set(Eigen3_FOUND TRUE)
+    else()
+      message(FATAL_ERROR "Eigen3 not found. Install system eigen3 or copy to third_party/eigen3")
+    endif()
+  else()
+    message(STATUS "Found system Eigen3: ${EIGEN3_INCLUDE_DIR}")
   endif()
 endif()
 
