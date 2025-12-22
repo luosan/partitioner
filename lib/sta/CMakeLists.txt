@@ -267,52 +267,141 @@ set(STA_TCL_FILES
 #
 ################################################################
 
-# Earlier versions of flex use 'register' declarations that are illegal in c++17.
-#find_package(FLEX 2.6.4)
-find_package(FLEX)
-find_package(BISON REQUIRED 3.2)
+# Option to use pre-generated flex/bison files (avoids flex/bison dependency)
+option(USE_PREGENERATED_PARSERS "Use pre-generated flex/bison files" OFF)
 
-# Verilog scan/parse.
-flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc)
-bison_target(VerilogParse ${STA_HOME}/verilog/VerilogParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc)
-add_flex_bison_dependency(VerilogLex VerilogParse)
+# Check if pregenerated files exist
+set(PREGENERATED_DIR ${STA_HOME}/pregenerated)
+if(EXISTS ${PREGENERATED_DIR}/VerilogLex.cc)
+  set(PREGENERATED_FILES_EXIST TRUE)
+else()
+  set(PREGENERATED_FILES_EXIST FALSE)
+endif()
 
-# Liberty scan/parse.
-flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
-bison_target(LibertyParse ${STA_HOME}/liberty/LibertyParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc)
-add_flex_bison_dependency(LibertyLex LibertyParse)
+# Try to find flex/bison with version requirements
+# BISON >= 3.2, FLEX >= 2.6.4 (earlier versions use 'register' declarations illegal in c++17)
+set(BISON_MIN_VERSION "3.2")
+set(FLEX_MIN_VERSION "2.6.4")
 
-# Liberty Expr scan/parse.
-flex_target(LibExprLex ${STA_HOME}/liberty/LibExprLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/LibExprLex.cc)
-bison_target(LibExprParse ${STA_HOME}/liberty/LibExprParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/LibExprParse.cc)
-add_flex_bison_dependency(LibExprLex LibExprParse)
+find_package(FLEX QUIET)
+find_package(BISON QUIET)
 
-# Sdf scan/parse.
-flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc)
-bison_target(SdfParse ${STA_HOME}/sdf/SdfParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc)
-add_flex_bison_dependency(SdfLex SdfParse)
+# Check version requirements
+set(FLEX_VERSION_OK FALSE)
+set(BISON_VERSION_OK FALSE)
 
-# Spef scan/parse.
-flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc)
-bison_target(SpefParse ${STA_HOME}/parasitics/SpefParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc)
-add_flex_bison_dependency(SpefLex SpefParse)
+if(FLEX_FOUND AND FLEX_VERSION)
+  if(FLEX_VERSION VERSION_GREATER_EQUAL ${FLEX_MIN_VERSION})
+    set(FLEX_VERSION_OK TRUE)
+  else()
+    message(STATUS "Flex version ${FLEX_VERSION} < ${FLEX_MIN_VERSION} (too old)")
+  endif()
+endif()
 
-# Saif scan/parse.
-flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc)
-bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
-add_flex_bison_dependency(SaifLex SaifParse)
+if(BISON_FOUND AND BISON_VERSION)
+  if(BISON_VERSION VERSION_GREATER_EQUAL ${BISON_MIN_VERSION})
+    set(BISON_VERSION_OK TRUE)
+  else()
+    message(STATUS "Bison version ${BISON_VERSION} < ${BISON_MIN_VERSION} (too old)")
+  endif()
+endif()
+
+# Decide whether to use pregenerated files
+if(USE_PREGENERATED_PARSERS OR (NOT FLEX_FOUND) OR (NOT BISON_FOUND) OR (NOT FLEX_VERSION_OK) OR (NOT BISON_VERSION_OK))
+  if(NOT PREGENERATED_FILES_EXIST)
+    message(FATAL_ERROR "Flex/Bison not found or version too old, and pregenerated files not available in ${PREGENERATED_DIR}")
+  endif()
+  message(STATUS "Using pre-generated flex/bison files from ${PREGENERATED_DIR}")
+  set(USE_PREGENERATED TRUE)
+else()
+  message(STATUS "Using flex ${FLEX_VERSION} and bison ${BISON_VERSION}")
+  set(USE_PREGENERATED FALSE)
+endif()
+
+if(USE_PREGENERATED)
+  # Copy pregenerated files to build directory
+  file(COPY ${PREGENERATED_DIR}/VerilogLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/VerilogParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/VerilogParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/VerilogLocation.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibertyLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibertyParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibertyParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibertyLocation.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibExprLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibExprParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/LibExprParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SdfLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SdfParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SdfParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SdfLocation.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SpefLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SpefParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SpefParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SpefLocation.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SaifLex.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SaifParse.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SaifParse.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${PREGENERATED_DIR}/SaifLocation.hh DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+  # Set output variables to match what flex_target/bison_target would set
+  set(FLEX_VerilogLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc)
+  set(BISON_VerilogParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc)
+  set(FLEX_LibertyLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
+  set(BISON_LibertyParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc)
+  set(FLEX_LibExprLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/LibExprLex.cc)
+  set(BISON_LibExprParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/LibExprParse.cc)
+  set(FLEX_SdfLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc)
+  set(BISON_SdfParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc)
+  set(FLEX_SpefLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc)
+  set(BISON_SpefParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc)
+  set(FLEX_SaifLex_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc)
+  set(BISON_SaifParse_OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
+  set(FLEX_INCLUDE_DIRS "")
+else()
+  # Use flex/bison to generate parsers
+  # Verilog scan/parse.
+  flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc)
+  bison_target(VerilogParse ${STA_HOME}/verilog/VerilogParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc)
+  add_flex_bison_dependency(VerilogLex VerilogParse)
+
+  # Liberty scan/parse.
+  flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
+  bison_target(LibertyParse ${STA_HOME}/liberty/LibertyParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc)
+  add_flex_bison_dependency(LibertyLex LibertyParse)
+
+  # Liberty Expr scan/parse.
+  flex_target(LibExprLex ${STA_HOME}/liberty/LibExprLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/LibExprLex.cc)
+  bison_target(LibExprParse ${STA_HOME}/liberty/LibExprParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/LibExprParse.cc)
+  add_flex_bison_dependency(LibExprLex LibExprParse)
+
+  # Sdf scan/parse.
+  flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc)
+  bison_target(SdfParse ${STA_HOME}/sdf/SdfParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc)
+  add_flex_bison_dependency(SdfLex SdfParse)
+
+  # Spef scan/parse.
+  flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc)
+  bison_target(SpefParse ${STA_HOME}/parasitics/SpefParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc)
+  add_flex_bison_dependency(SpefLex SpefParse)
+
+  # Saif scan/parse.
+  flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll
+    ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc)
+  bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
+  add_flex_bison_dependency(SaifLex SaifParse)
+endif()
 
 ################################################################
 
@@ -321,11 +410,16 @@ set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
 # TCL files included as part of the executable are shoved into StaTclInitVar.cc.
 # These files are encoded and shipped as part of the executable 
 # so that they do not have to be installed on the client host.
-add_custom_command(OUTPUT ${STA_TCL_INIT}
-  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
-  WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
-  )
+if(USE_PREGENERATED AND EXISTS ${PREGENERATED_DIR}/StaTclInitVar.cc)
+  file(COPY ${PREGENERATED_DIR}/StaTclInitVar.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  message(STATUS "Using pre-generated StaTclInitVar.cc")
+else()
+  add_custom_command(OUTPUT ${STA_TCL_INIT}
+    COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
+    WORKING_DIRECTORY ${STA_HOME}
+    DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
+    )
+endif()
 
 ################################################################
 #
