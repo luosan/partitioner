@@ -22,8 +22,41 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Find required packages
 find_package(Threads REQUIRED)
 
-# Find Boost
-find_package(Boost REQUIRED)
+# Find Boost - prefer local third_party/boost if system boost not found
+option(USE_LOCAL_BOOST "Use local boost headers from third_party/boost" OFF)
+
+if(USE_LOCAL_BOOST OR NOT EXISTS "/usr/include/boost")
+  # Use local boost headers
+  if(EXISTS "${CMAKE_SOURCE_DIR}/third_party/boost")
+    message(STATUS "Using local Boost headers from third_party/boost")
+    set(BOOST_INCLUDEDIR "${CMAKE_SOURCE_DIR}/third_party")
+    add_library(Boost::boost INTERFACE IMPORTED)
+    set_target_properties(Boost::boost PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/third_party"
+    )
+    set(Boost_FOUND TRUE)
+  else()
+    message(FATAL_ERROR "Local Boost not found in third_party/boost. Please copy boost headers there.")
+  endif()
+else()
+  # Try system Boost
+  find_package(Boost QUIET)
+  if(NOT Boost_FOUND)
+    # Fall back to local
+    if(EXISTS "${CMAKE_SOURCE_DIR}/third_party/boost")
+      message(STATUS "System Boost not found, using local Boost headers from third_party/boost")
+      add_library(Boost::boost INTERFACE IMPORTED)
+      set_target_properties(Boost::boost PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/third_party"
+      )
+      set(Boost_FOUND TRUE)
+    else()
+      message(FATAL_ERROR "Boost not found. Install system boost or copy headers to third_party/boost")
+    endif()
+  else()
+    message(STATUS "Found system Boost: ${Boost_INCLUDE_DIRS}")
+  endif()
+endif()
 
 # Try to find ortools
 if(USE_ORTOOLS)

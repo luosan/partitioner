@@ -12,9 +12,8 @@ if (LOAD_CPLEX)
   include_directories(SYSTEM ${CPLEX_INCLUDE_DIRS})
 endif (LOAD_CPLEX)
 
-# Find required packages
+# Find required packages (Boost is handled by parent CMakeLists.txt)
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED)
 
 # OR-Tools is handled by parent CMakeLists.txt from source
 # USE_ORTOOLS variable is set by parent
