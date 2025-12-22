@@ -1,0 +1,68 @@
+OpenROAD v2.0-26035-gf2403abf9f 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0227] LEF file: Nangate45/Nangate45_tech.lef, created 22 layers, 27 vias
+[INFO ODB-0227] LEF file: Nangate45/Nangate45_stdcell.lef, created 135 library cells
+[INFO ODB-0227] LEF file: Nangate45/fakeram45_256x16.lef, created 1 library cells
+Start TritonPart with slack propagation
+[INFO PAR-0004] Partitioning netlist.
+Netlist Partitioning Parameters
+	Number of partitions = 5
+	UBfactor = 2
+	Seed = 0
+	Vertex dimensions = 1
+	Hyperedge dimensions = 1
+	Placement dimensions = 0
+	Timing aware flag = true
+	Guardband flag = true
+	Global net threshold = 1000
+	Top 100000 critical timing paths are extracted.
+	Fence aware flag = false
+[INFO PAR-0038] Display Used Files
+	Solution file: ariane_part_design.hgr.part.5
+[INFO PAR-0005] Reading netlist.
+[INFO PAR-0037] Extracting timing paths.
+[WARNING PAR-0019] The traversed timing graph has 3486 unconstrained hyperedges!
+[INFO PAR-0018] Read netlist has 135405 vertices, 136227 hyperedges and 23215 timing paths.
+Display Timing Path Cuts Statistics
+	Total number of timing paths = 23215
+	Total number of timing-critical paths = 23215
+	Total number of timing-noncritical paths = 0
+	The worst number of cuts on timing-critical paths = 2
+	The average number of cuts on timing-critical paths = 0.13
+	Total number of timing-noncritical to timing critical paths = 0
+	The worst number of cuts on timing-non2critical paths = 0
+	The average number of cuts on timing-non2critical paths = 0.00
+[INFO PAR-0006] Updated solution file name: ariane_part_design.hgr.part.5
+Convert the solution format for transformation
+Evaluate the solution
+[INFO PAR-0010] Evaluating netlist partitioning solution.
+General Parameters
+	Number of partitions = 5
+	UBfactor = 2
+	Seed = 0
+	Vertex dimensions = 1
+	Hyperedge dimensions = 1
+	Placement dimensions = 0
+	Guardband flag = false
+	Timing aware flag = true
+	Global net threshold = 1000
+	Top 100000 critical timing paths are extracted.
+	Fence aware flag = false
+[INFO PAR-0038] Display Used Files
+	Solution file: ariane_part_design.hgr.part.5.update
+[INFO PAR-0011] Reading netlist.
+[INFO PAR-0037] Extracting timing paths.
+[WARNING PAR-0019] The traversed timing graph has 3486 unconstrained hyperedges!
+[INFO PAR-0018] Read netlist has 135405 vertices, 136227 hyperedges and 23215 timing paths.
+Display Timing Path Cuts Statistics
+	Total number of timing paths = 23215
+	Total number of timing-critical paths = 20191
+	Total number of timing-noncritical paths = 3024
+	The worst number of cuts on timing-critical paths = 2
+	The average number of cuts on timing-critical paths = 0.14
+	Total number of timing-noncritical to timing critical paths = 132
+	The worst number of cuts on timing-non2critical paths = 1
+	The average number of cuts on timing-non2critical paths = 1.00
+Finish TritonPart with slack propagation

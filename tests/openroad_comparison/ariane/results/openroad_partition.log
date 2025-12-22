@@ -1,0 +1,51 @@
+OpenROAD v2.0-26035-gf2403abf9f 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0227] LEF file: /home/lzx/work/mypartition/tests/openroad_comparison/ariane/Nangate45/Nangate45_tech.lef, created 22 layers, 27 vias
+[INFO ODB-0227] LEF file: /home/lzx/work/mypartition/tests/openroad_comparison/ariane/Nangate45/Nangate45_stdcell.lef, created 135 library cells
+[INFO ODB-0227] LEF file: /home/lzx/work/mypartition/tests/openroad_comparison/ariane/Nangate45/fakeram45_256x16.lef, created 1 library cells
+[INFO PAR-0004] Partitioning netlist.
+Netlist Partitioning Parameters
+	Number of partitions = 5
+	UBfactor = 2
+	Seed = 0
+	Vertex dimensions = 1
+	Hyperedge dimensions = 1
+	Placement dimensions = 0
+	Timing aware flag = true
+	Guardband flag = true
+	Global net threshold = 1000
+	Top 100000 critical timing paths are extracted.
+	Fence aware flag = false
+[INFO PAR-0038] Display Used Files
+	Solution file: /home/lzx/work/mypartition/tests/openroad_comparison/ariane/results/openroad_result.part.5
+[INFO PAR-0005] Reading netlist.
+[INFO PAR-0037] Extracting timing paths.
+[WARNING PAR-0019] The traversed timing graph has 3486 unconstrained hyperedges!
+[INFO PAR-0018] Read netlist has 135405 vertices, 136227 hyperedges and 23215 timing paths.
+
+Print Statistics for Partition
+
+Cutcost : 105389.375
+Vertex balance of block_0 : 0.18001  ( 229725.62500 )    
+Vertex balance of block_1 : 0.18000  ( 229710.45312 )    
+Vertex balance of block_2 : 0.20401  ( 260351.26562 )    
+Vertex balance of block_3 : 0.21808  ( 278305.59375 )    
+Vertex balance of block_4 : 0.21684  ( 276723.28125 )    
+
+Constraints and Cut Evaluation
+
+Satisfy the balance constraint : true
+Satisfy the group constraint : true
+Satisfy the fixed vertices constraint : true
+Display Timing Path Cuts Statistics
+	Total number of timing paths = 23215
+	Total number of timing-critical paths = 23215
+	Total number of timing-noncritical paths = 0
+	The worst number of cuts on timing-critical paths = 2
+	The average number of cuts on timing-critical paths = 0.13
+	Total number of timing-noncritical to timing critical paths = 0
+	The worst number of cuts on timing-non2critical paths = 0
+	The average number of cuts on timing-non2critical paths = 0.00
+[INFO PAR-0006] Updated solution file name: /home/lzx/work/mypartition/tests/openroad_comparison/ariane/results/openroad_result.part.5

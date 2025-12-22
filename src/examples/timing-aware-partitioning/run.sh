@@ -1,0 +1,1 @@
+/home/lzx/work/OpenROAD-flow-scripts/tools/install/OpenROAD/bin/openroad /home/lzx/work/OpenROAD-flow-scripts/tools/OpenROAD/src/par/examples/timing-aware-partitioning/run_timing_aware_flow.tcl
