@@ -314,6 +314,7 @@ bool ILPPartitionInst(
                           lower_block_balance);
 #endif
 
+#ifdef HAS_ORTOOLS
   // reset variable
   solution.clear();
   solution.resize(num_vertices);
@@ -425,6 +426,10 @@ bool ILPPartitionInst(
     return true;
   }
   return false;
+#else
+  // OR-Tools not available
+  return false;
+#endif
 }
 
 // Call CPLEX to solve the ILP Based Partitioning
