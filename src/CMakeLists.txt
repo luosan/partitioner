@@ -88,7 +88,6 @@ target_include_directories(tritonpart_adapter
 target_link_libraries(tritonpart_adapter
   PUBLIC
     tritonpart_core
-    ${CMAKE_SOURCE_DIR}/lib/sta/build/sta_swig.a  # Swig TCL bindings - MUST come first
     OpenSTA
     ${TCL_LIBRARY}
 )

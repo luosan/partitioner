@@ -20,11 +20,6 @@
 #include <set>
 #include <functional>
 
-// Swig init function for TCL commands
-extern "C" {
-extern int Sta_Init(Tcl_Interp *interp);
-}
-
 // External TCL init array from OpenSTA
 namespace sta {
 extern const char *tcl_inits[];
@@ -67,14 +62,7 @@ public:
             // Step 5: Bind TCL interpreter to STA
             sta_->setTclInterp(tcl_interp_);
             
-            // Step 6: Initialize Swig TCL commands - CRITICAL for avoiding segfault
-            logger.info("Initializing Swig TCL commands...");
-            if (Sta_Init(tcl_interp_) != TCL_OK) {
-                logger.warning("Failed to initialize Swig TCL commands (may be missing in build)");
-                // Continue anyway, but TCL commands won't work
-            }
-            
-            // Step 7: Load OpenSTA TCL scripts
+            // Step 6: Load OpenSTA TCL scripts
             logger.info("Loading OpenSTA TCL scripts...");
             sta::evalTclInit(tcl_interp_, sta::tcl_inits);
             if (Tcl_Eval(tcl_interp_, "init_sta_cmds") != TCL_OK) {

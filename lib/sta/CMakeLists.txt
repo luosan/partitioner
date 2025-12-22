@@ -40,6 +40,7 @@ option(CUDD_DIR "CUDD BDD package directory")
 option(USE_TCL_READLINE "Use TCL readline package" ON)
 option(ENABLE_TSAN "Compile with thread santizer enabled" OFF)
 option(ENABLE_ASAN "Compile with address santizer enabled" OFF)
+option(BUILD_TCL_SWIG "Build TCL/SWIG bindings (requires SWIG and TCL)" OFF)
 
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -397,11 +398,12 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
   )
 
 ###########################################################
-# Swig
+# Swig (optional)
 ###########################################################
 
-find_package(SWIG 3.0 REQUIRED)
-include(UseSWIG)
+if(BUILD_TCL_SWIG)
+  find_package(SWIG 3.0 REQUIRED)
+  include(UseSWIG)
 
 set(STA_SWIG_FILE app/StaApp.i)
 
@@ -471,6 +473,7 @@ target_include_directories(sta_swig
   ${TCL_INCLUDE_PATH}
   ${CMAKE_CURRENT_BINARY_DIR}/include/sta
 )
+endif() # BUILD_TCL_SWIG
 
 ###########################################################
 # Library
@@ -565,27 +568,29 @@ target_compile_features(OpenSTA PUBLIC cxx_std_17)
 message(STATUS "STA library: ${CMAKE_BINARY_DIR}/libOpenSTA.a")
 
 ###########################################################
-# Executable
+# Executable (only when TCL/SWIG is enabled)
 ###########################################################
 
-# Note executable and lib name cannot be the same because
-# on osx something is case insensitive. Using STA for the
-# lib name results in "No rule to make target ../depend.
-add_executable(sta app/Main.cc)
+if(BUILD_TCL_SWIG)
+  # Note executable and lib name cannot be the same because
+  # on osx something is case insensitive. Using STA for the
+  # lib name results in "No rule to make target ../depend.
+  add_executable(sta app/Main.cc)
 
-target_link_libraries(sta
-  sta_swig
-  OpenSTA
-  )
+  target_link_libraries(sta
+    sta_swig
+    OpenSTA
+    )
 
-message(STATUS "STA executable: ${CMAKE_BINARY_DIR}/sta")
+  message(STATUS "STA executable: ${CMAKE_BINARY_DIR}/sta")
+
+  # executable
+  install(TARGETS sta DESTINATION bin)
+endif()
 
 ################################################################
 # Install
 # cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
-
-# executable
-install(TARGETS sta DESTINATION bin)
 
 # library
 install(TARGETS OpenSTA DESTINATION lib)
