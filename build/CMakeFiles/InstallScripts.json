@@ -1,0 +1,15 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/lzx/work/mypartition/build/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/libs/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/libs/3rdparty/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/libs/3rdparty/tcl/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/libs/3rdparty/plog/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/libs/shell/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/apps/cmake_install.cmake",
+		"/home/lzx/work/mypartition/build/src/apps/easypart/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

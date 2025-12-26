@@ -1,0 +1,26 @@
+set(TCL_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(TCL_BUILD_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+
+set(TCL_INCLUDE_DIR "${TCL_BUILD_PATH}/include")
+set(TCL_SOURCE_PATH "${TCL_DIR}/unix")
+
+file(MAKE_DIRECTORY ${TCL_INCLUDE_DIR})
+
+set(TCL_LIBRARY_PATH "${CMAKE_BINARY_DIR}/${MY_PROJECT_LIBRARY_PATH}/libtcl8.6.so")
+add_custom_target(BuildTcl
+  COMMENT "Compiling Tcl"
+  COMMAND ${TCL_SOURCE_PATH}/configure --prefix=${TCL_BUILD_PATH} --exec-prefix=${TCL_BUILD_PATH}
+
+  COMMAND make LDFLAGS+="-Wl,-soname,${TCL_LIBRARY_PATH}" install -j
+  COMMAND cp -rf ${TCL_BUILD_PATH}/lib/libtcl8.6.so ${CMAKE_BINARY_DIR}/${MY_PROJECT_LIBRARY_PATH}
+  WORKING_DIRECTORY "${TCL_BUILD_PATH}"
+)
+
+add_library(Tcl SHARED IMPORTED GLOBAL)
+set_property(TARGET Tcl APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
+set_target_properties(Tcl PROPERTIES IMPORTED_LOCATION_NOCONFIG "${TCL_LIBRARY_PATH}")
+target_include_directories(Tcl INTERFACE
+${TCL_INCLUDE_DIR}
+)
+
+add_dependencies(Tcl BuildTcl)

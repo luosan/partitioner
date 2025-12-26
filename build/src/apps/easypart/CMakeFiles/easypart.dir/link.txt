@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/easypart.dir/main.cpp.o -o ../../../bin/easypart  -Wl,-rpath,"\$ORIGIN/../lib/easypart:/home/lzx/work/mypartition/build/lib/easypart:" ../../../lib/easypart/libShell.so.0.0.1 ../../../lib/easypart/libtcl8.6.so
